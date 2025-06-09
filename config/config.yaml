@@ -1,0 +1,10 @@
+gemini:
+  api_key: ${GEMINI_API_KEY}  # Lấy từ .env
+  model: gemini-2.0-flash
+pinecone:
+  api_key: ${PINECONE_API_KEY}  # Lấy từ .env
+  environment: us-east-1
+  index_name: rag-chatbot
+embedding:
+  model: sentence-transformers/all-MiniLM-L6-v2
+  dimension: 384
