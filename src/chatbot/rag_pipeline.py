@@ -7,16 +7,16 @@ class RAGPipeline:
         self.config = config
         self.embedding_generator = EmbeddingGenerator(config['embedding']['model'])
         self.vector_store = VectorStore(
-            config['pinecone']['api_key'],
-            config['pinecone']['environment'],
-            config['pinecone']['index_name'],
-            config['embedding']['dimension']
+            index_name=config['elasticsearch']['index_name'],
+            dimension=config['embedding']['dimension']
         )
         self.gemini_client = GeminiClient(
             config['gemini']['api_key'],
             config['gemini']['model']
         )
-        self.initialize_vector_store()
+        if config['elasticsearch']['initialize']:
+            print('Initialize vector store')
+            self.initialize_vector_store()
     
     def initialize_vector_store(self):
         # Load sample data and create embeddings

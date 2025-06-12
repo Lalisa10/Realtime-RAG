@@ -1,26 +1,52 @@
-import pinecone
-from pinecone import Pinecone, ServerlessSpec
+from elasticsearch import Elasticsearch
+from message_queue.kafka import produce
+import json
+import numpy as np
 
 class VectorStore:
-    def __init__(self, api_key, environment, index_name, dimension):
-        self.pc = Pinecone(api_key=api_key)
+    def __init__(self, index_name, dimension):
+        # Kết nối tới Elasticsearch
+        self.es = Elasticsearch("http://localhost:9200")
         self.index_name = index_name
         self.dimension = dimension
         
-        # Create index if it doesn't exist
-        if index_name not in self.pc.list_indexes().names():
-            self.pc.create_index(
-                name=index_name,
-                dimension=dimension,
-                metric="cosine",
-                spec=ServerlessSpec(cloud="aws", region=environment)
+        # Kiểm tra và tạo index nếu chưa tồn tại
+        if not self.es.indices.exists(index=index_name):
+            self.es.indices.create(
+                index=index_name,
+                body={
+                    "mappings": {
+                        "properties": {
+                            "embedding": {"type": "dense_vector", "dims": dimension},
+                            "text": {"type": "text"}
+                        }
+                    }
+                }
             )
-        self.index = self.pc.Index(index_name)
     
     def upsert_vectors(self, documents, embeddings):
-        vectors = [(str(i), emb, {"text": doc}) for i, (doc, emb) in enumerate(zip(documents, embeddings))]
-        self.index.upsert(vectors)
+        # Gửi embeddings và documents tới Kafka
+        for doc, emb in zip(documents, embeddings):
+            record = {
+                "text": doc,
+                "embedding": emb,
+            }
+            #print(type(json.dumps(record).encode('utf-8')))
+            produce('rag_embeddings', json.dumps(record).encode('utf-8'))
     
     def query(self, embedding, top_k=3):
-        results = self.index.query(vector=embedding, top_k=top_k, include_metadata=True)
-        return [match['metadata']['text'] for match in results['matches']]
+        # Tìm kiếm k-nearest neighbors trong Elasticsearch
+        query = {
+            "query": {
+                "script_score": {
+                    "query": {"match_all": {}},
+                    "script": {
+                        "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
+                        "params": {"query_vector": embedding}
+                    }
+                }
+            },
+            "size": top_k
+        }
+        response = self.es.search(index=self.index_name, body=query)
+        return [hit["_source"]["text"] for hit in response["hits"]["hits"]]
