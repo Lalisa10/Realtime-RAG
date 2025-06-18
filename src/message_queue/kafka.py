@@ -4,10 +4,14 @@ import json
 
 config = load_config()
 
-def produce(topic, value, key=None):
-    # creates a new producer instance
-    producer = Producer(config)
+def get_producer():
+    if not hasattr(get_producer, "_producer"):
+        get_producer._producer = Producer(config)
+    return get_producer._producer
 
+def produce(topic, value, key=None):
+    
+    producer = get_producer()
     # produces a sample message
     producer.produce(topic, key=key, value=value)
 

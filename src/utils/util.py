@@ -12,3 +12,9 @@ def resolve_env_vars(value):
         return [resolve_env_vars(v) for v in value]
     else:
         return value
+
+def load_config(config_path):
+    with open(config_path, 'r') as file:
+        raw_config = yaml.safe_load(file)
+    config = resolve_env_vars(raw_config)
+    return config

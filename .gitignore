@@ -4,3 +4,4 @@
 data/embeddings/
 *.log
 esdata/
+data/database

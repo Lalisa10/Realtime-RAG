@@ -1,6 +1,7 @@
 from retrieval.embedding import EmbeddingGenerator
 from retrieval.vector_store import VectorStore
 from chatbot.gemini_client import GeminiClient
+from cache.QuestionCache import QuestionCache
 
 class RAGPipeline:
     def __init__(self, config):
@@ -17,6 +18,8 @@ class RAGPipeline:
         if config['elasticsearch']['initialize']:
             print('Initialize vector store')
             self.initialize_vector_store()
+
+        self.cache = QuestionCache(config)
     
     def initialize_vector_store(self):
         # Load sample data and create embeddings
@@ -26,6 +29,10 @@ class RAGPipeline:
         self.vector_store.upsert_vectors(documents, embeddings)
     
     def query(self, user_input):
+        cache_result = self.cache.process_question(user_input, similarity_threshold=self.config["cache"]["similarity_threshold"])
+        if cache_result:
+            print("Found existing result!")
+            return cache_result
         # Generate embedding for user query
         query_embedding = self.embedding_generator.generate(user_input)
         
@@ -35,4 +42,5 @@ class RAGPipeline:
         
         # Generate response using Gemini
         response = self.gemini_client.generate_response(user_input, context)
+        self.cache.store_question(user_input, response, self.config['cache']['ttl'])
         return response

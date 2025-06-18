@@ -31,7 +31,6 @@ class VectorStore:
                 "text": doc,
                 "embedding": emb,
             }
-            #print(type(json.dumps(record).encode('utf-8')))
             produce('rag_embeddings', json.dumps(record).encode('utf-8'))
     
     def query(self, embedding, top_k=3):
