@@ -11,7 +11,7 @@ async def run_crawl(urls):
 def main():
     with open('data/products_url.json', 'r', encoding='utf-8') as f:
         product_urls = json.load(fp=f)
-    asyncio.run(run_crawl(product_urls[:100]))
+    asyncio.run(run_crawl(product_urls[100:200]))
     
 
 if __name__ == "__main__":
