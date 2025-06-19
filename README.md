@@ -7,7 +7,7 @@ A chatbot that uses Retrieval-Augmented Generation (RAG) with Gemini Assistant a
 1. **Clone the repository**:
 
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/Lalisa10/Realtime-RAG.git
    cd realtime_rag_chatbot
    ```
 
@@ -30,7 +30,7 @@ A chatbot that uses Retrieval-Augmented Generation (RAG) with Gemini Assistant a
 
 4. **Prepare data**:
 
-   - Add your data to `data/raw/sample_data.txt` or modify `rag_pipeline.py` to load from another source.
+   - Run crawl data from Tiki.vn
 
 5. **Run the chatbot**:
 
