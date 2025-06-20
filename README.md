@@ -21,29 +21,33 @@ A chatbot that uses Retrieval-Augmented Generation (RAG) with Gemini Assistant a
 
    - Create a `.env` file in the root directory.
 
-   - Add your Gemini and Pinecone API keys:
+   - Add your Gemini and Confluent API keys:
 
-     ```
-     GEMINI_API_KEY=your_gemini_api_key_here
-     PINECONE_API_KEY=your_pinecone_api_key_here
-     ```
+   ```bash
+   GEMINI_API_KEY=
+   CONFLUENT_BOOTSTRAP_SERVERS=
+   CONFLUENT_API_KEY=
+   CONFLUENT_API_SECRET=
+   ```
 
-4. **Prepare data**:
+5. **Prepare data**:
 
-   - Add your data to `data/raw/sample_data.txt` or modify `rag_pipeline.py` to load from another source.
+   - Run the following command to run crawl data:
+   ```bash
+   python -m src.crawl.crawl_from_scratch
+   ````
 
-5. **Run the chatbot**:
+6. **Run the chatbot**:
 
    ```bash
    python src/main.py
    ```
+7. **Run ELK cluster and Redis Stack**:
 
+   ```bash
+   docker compose up -d
+   ```
 ## Usage
 
 - Open the Gradio interface in your browser (URL provided in the terminal).
 - Enter your question in the textbox, and the chatbot will respond using RAG.
-
-## Example
-
-- Input: "What is RAG in AI?"
-- Output: "RAG stands for Retrieval-Augmented Generation, a technique that combines information retrieval and content generation to improve AI responses."
